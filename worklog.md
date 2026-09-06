@@ -55,3 +55,20 @@ Stage Summary:
 - nordeim/ourladyoflourdes main carries the full OLL redesign as a clean single commit atop the initial scaffold; only main was used.
 - The private SSH key never left the machine and is absent from the pushed history (rotation still recommended as good hygiene since it was briefly staged in a local commit).
 - Deliverable: download/ourladyoflourdes-website.tar.
+
+---
+Task ID: 3 (addendum)
+Agent: main (Super Z)
+Task: Post-push findings and corrections for the ourladyoflourdes push
+
+Work Log:
+- Remote audit: origin/main had UNRELATED history — aa25f11 "grok gemini builds" + 40236e2 "add skills" containing backup/ourladyoflourdes-{gemini3.8,grok4.6}.zip, a full skills/ tree, and docs/ssh-key.txt whose md5 (12af3770452504ef729c3f6a777caca5) is byte-identical to the deploy key used for this push.
+- Merged with `git merge origin/main --allow-unrelated-histories` (faithful union, zero file conflicts) -> merge commit 2880502; pushed aa25f11..2880502 to main; remote tip verified == local HEAD via ls-remote.
+- SECURITY: the deploy key was ALREADY published in the remote repo history (docs/ssh-key.txt, commit 40236e2) before this task began — key rotation is REQUIRED, not optional. Nothing in this task's commits added or propagated the key; the local contaminated history was purged (gc --prune=now).
+- First push attempt stalled (transport hang, killed at 420 s, no partial state on remote); retry with GIT_TRACE_PACKET completed in ~3 s — treat the stall as transient.
+- Tar deliverable built via `git archive` from the redesign commit cc74b89 (main^1), NOT from the merge tip, so it contains ONLY the new codebase (verified: 101 entries, no backup/, docs/, skills/, no key file).
+
+Stage Summary:
+- Remote nordeim/ourladyoflourdes main = 2880502 (merge of redesign cc74b89 + prior remote content); only main used throughout.
+- download/ourladyoflourdes-website.tar (6.5 MB) is the clean codebase artifact.
+- Open action for user: rotate the GitHub deploy key immediately.
