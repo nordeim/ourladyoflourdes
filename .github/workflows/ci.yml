@@ -1,0 +1,62 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Unit tests
+        run: bun run test
+
+      # The build step includes scripts/inject-csp-hashes.mjs: the artifact
+      # that reaches the e2e stage below is the CSP-hardened single file.
+      - name: Build
+        run: bun run build
+
+      - name: Install Playwright chromium
+        run: bunx playwright install --with-deps chromium
+
+      # E2E runs against dist/ via vite preview (playwright.built.config.ts) —
+      # the same artifact the live host serves, not the dev server.
+      - name: E2E tests (built artifact)
+        run: bun run test:e2e:built
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
