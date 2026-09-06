@@ -72,3 +72,22 @@ Stage Summary:
 - Remote nordeim/ourladyoflourdes main = 2880502 (merge of redesign cc74b89 + prior remote content); only main used throughout.
 - download/ourladyoflourdes-website.tar (6.5 MB) is the clean codebase artifact.
 - Open action for user: rotate the GitHub deploy key immediately.
+---
+Task ID: 4
+Agent: main (Super Z)
+Task: Remediation — port Site A build/test hardening into Site B per OLL_Church_Websites_Design_Audit_Report.md (plan: docs/remediation-plan-2026-09-06.md)
+
+Work Log:
+- Located the skills catalog (skills/skills-catalog.md, 224 skills — actually in THIS repo, not Site A) and applied planning-and-task-breakdown, tdd-workflow, verification-and-review-protocol (Iron Law), how-to-git-push-using-ssh-wrapper, static-spa-parish-site, security-and-hardening.
+- Cloned both repos; validated the audit §8 matrix against live code: Site B lacked CSP hash injection, E2E suite, CI workflow; public/_headers present but malformed (trailing comment-closer line); docs/ssh-key.txt tracked (private key); dist/ stale artifacts tracked.
+- TDD Task 1 (CSP): RED src/csp-build-contract.test.ts -> GREEN scripts/inject-csp-hashes.mjs + .d.mts (Site A port, pure helpers + fail-closed CLI) + build wiring. Verified on real build: script-src now 'self' 'sha256-…' 'sha256-…', 0 'unsafe-inline' in script-src (style-src keeps it by design).
+- TDD Task 2 (_headers): RED src/headers-contract.test.ts (well-formedness parser) -> GREEN removed stray closer from public/_headers (kept SAMEORIGIN per plan D4).
+- TDD Task 3 (hygiene): RED src/repo-hygiene.test.ts (4 failures) -> GREEN git rm --cached docs/ssh-key.txt + dist/ untracked + .gitignore secret rules + removed contradictory skills/ ignore rule (skills are intentionally tracked).
+- Tasks 4-8 (E2E): bun add -d @playwright/test@1.55.1; playwright.config.ts (chromium channel, dev 3000) + playwright.built.config.ts (vite preview 4173, E2E_BASE_URL override) + e2e/helpers.ts; 4 OLL spec files (smoke, navigation, aliases-deep-links, worship-sacraments). First run 29/31 -> fixed spec-to-reality mismatches (primary nav is Home/About/Worship/Sacraments/Ministries/News & Events; dropdowns are plain links, no ARIA menu roles) AND a real defect: mobile drawer ignored Escape before its 50 ms self-focus — window-level Escape listener added in Header.tsx (mirrors desktopOpen contract). Final: 31/31 dev, 31/31 against CSP-hardened dist.
+- TDD Task 9 (CI): RED src/ci-workflow.test.ts -> GREEN .github/workflows/ci.yml (bun: setup-bun, --frozen-lockfile, lint/typecheck/test, build incl. CSP injection, playwright install chromium, test:e2e:built, artifacts).
+- Tasks 10-12 (docs): README updated (commands, hardening & security section, architecture map, stack counts 71 unit + 31 E2E), this worklog entry, plan doc carries the full execution record.
+
+Stage Summary:
+- Audit gaps closed: CSP hash injection YES, _headers well-formed YES, Playwright E2E 31 specs (dev + built artifact), CI workflow (bun), repo hygiene guard. Site B now combines its own design/content model (audit Recommendations 1/3/4 already satisfied) with Site A's build hardening (Recommendation 2).
+- Gates (Iron Law evidence): lint 0 warnings; typecheck 0 errors; vitest 12 files/71 tests; build + injector green; e2e 31/31 (dev); e2e:built 31/31 (hardened dist).
+- Security action carried forward: the deploy key in docs/ssh-key.txt was removed from tracking but remains in git history — rotation REQUIRED (flagged since Task 3 addendum).
