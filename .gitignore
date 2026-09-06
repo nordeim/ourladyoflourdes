@@ -1,2 +1,33 @@
-skills/
+# dependencies
 node_modules/
+
+# environment & secrets
+.env
+.env.*
+!.env.example
+.ssh/
+
+# environment scaffolding & runtime artifacts
+db/
+dev.log
+tool-results/
+
+# user uploads & deliverables (kept local, never published)
+upload/
+download/
+
+# local reference clone (read-only design reference, not part of this codebase)
+blessed-sacrament-church/
+
+# research & scraping artifacts
+scripts/imgsearch/
+scripts/shots/
+scripts/oll*.json
+scripts/oll*.html
+
+# OS / editor noise
+.DS_Store
+*.local
+
+# internal skill definitions (system tooling, not part of the site)
+skills/
