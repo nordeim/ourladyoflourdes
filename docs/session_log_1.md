@@ -1,3 +1,5 @@
+> **Archival execution log — written at `2d683ff` (2026-09-06) for that session's remediation. For current codebase truth see `README.md` → `AGENTS.md` → `CLAUDE.md` → `ourladyoflourdes_SKILL.md` and the alignment report [`docs/session_log_1_alignment_report.md`](session_log_1_alignment_report.md) (HEAD `ab3e1ed`).**
+
 I'll continue from the previous session. The audit report exists and identifies the key gaps: Site B lacks **CSP hash injection**, a **public `_headers` file**, and a **Playwright E2E suite** (all present in Site A). My job: plan, validate, implement (TDD), document, and push to Site B's repo.
 
 Both repos cloned on `main`. Now updating todos and exploring both codebases:
