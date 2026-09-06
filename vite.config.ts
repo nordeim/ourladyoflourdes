@@ -34,6 +34,13 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["node_modules/**", "dist/**", "blessed-sacrament-church/**"],
+    exclude: [
+      "node_modules/**",
+      "dist/**",
+      "blessed-sacrament-church/**",
+      "e2e/**",
+      "playwright-report/**",
+      "test-results/**",
+    ],
   },
 });

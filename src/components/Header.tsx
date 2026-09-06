@@ -93,6 +93,24 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [desktopOpen]);
 
+  // Escape closes the mobile drawer from anywhere on the page. The drawer's
+  // own handleDrawerKeyDown only fires once the drawer has self-focused (a
+  // 50 ms setTimeout after open), so a user (or E2E runner) pressing Escape
+  // immediately after opening was ignored — remediation E2E navigation spec
+  // surfaced this gap; this window-level listener mirrors the desktopOpen
+  // contract above.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileOpen(false);
+        setDesktopOpen(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
+
   const isActive = (to: string) => {
     if (to.includes("#")) {
       const [path, fragment] = to.split("#");
